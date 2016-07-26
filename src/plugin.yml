@@ -1,0 +1,9 @@
+main: com.scarsz.itemx.ItemX
+version: 1.0
+name: ItemX
+
+commands:
+  itemx:
+    description: Search for a block or item id
+    usage: /itemx find/delete block/item blockid optional-dataid
+    permission: itemx.search
