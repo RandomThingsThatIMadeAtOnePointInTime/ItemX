@@ -1,11 +1,9 @@
 package com.scarsz.itemx;
 
 import org.bukkit.*;
-import org.bukkit.block.*;
+import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
-import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitRunnable;
 
@@ -28,15 +26,6 @@ public class ItemX extends JavaPlugin {
 
         if (operation == null) {
             sender.sendMessage(String.format("%sCouldn't determine if you wanted to %sfind%s or %sdelete", ChatColor.RED, ChatColor.WHITE, ChatColor.RED, ChatColor.WHITE));
-            return false;
-        }
-
-        SearchType searchType = null;
-        if (argsList.contains("block")) searchType = SearchType.BLOCK;
-        if (argsList.contains("item")) searchType = SearchType.ITEM;
-
-        if (searchType == null) {
-            sender.sendMessage(String.format("%sCouldn't determine if you wanted to find a %sblock%s or %sitem", ChatColor.RED, ChatColor.WHITE, ChatColor.RED, ChatColor.WHITE));
             return false;
         }
 
@@ -69,10 +58,7 @@ public class ItemX extends JavaPlugin {
                 boolean delete = operation == Operation.DELETE;
 
                 // create new thread for each queue of chunks
-                if (searchType == SearchType.BLOCK)
-                    chunkQueues.forEach(chunks -> threads.add(new Thread(() -> blockSearchWork(chunks, force, found, searchLimit, sender, id, delete))));
-                else
-                    chunkQueues.forEach(chunks -> threads.add(new Thread(() -> itemSearchWork(chunks, force, found, searchLimit, sender, id, delete))));
+                chunkQueues.forEach(chunks -> threads.add(new Thread(() -> blockSearchWork(chunks, force, found, searchLimit, sender, id, delete))));
 
                 // start new threads
                 threads.forEach(Thread::start);
@@ -139,60 +125,11 @@ public class ItemX extends JavaPlugin {
 //            contents.removeAll(contentsToRemove);
 //            inventory.setContents((ItemStack[]) contents.toArray());
 //        }
-    }
 
-    private void itemSearchWork(List<Chunk> chunks, boolean force, AtomicInteger found, int searchLimit, CommandSender sender, String id, Boolean delete) {
-        String[] split = id.split(":");
-        Integer itemId = Integer.valueOf(split[0]);
-        Integer dataId = split.length == 2 ? Integer.valueOf(split[1]) : 0;
-
-        masterLoop:
-        for (Chunk chunk : chunks) {
-            int x = 0;
-            while (x < 15) {
-                int y = 0;
-                while (y < chunk.getWorld().getMaxHeight() - 1) {
-                    int z = 0;
-                    while (z < 15) {
-                        if (!force && found.intValue() > searchLimit) {
-                            break masterLoop;
-                        }
-                        Block block = chunk.getBlock(x, y, z);
-                        BlockState state = block.getState();
-
-                        Inventory inventory = null;
-                        if (state instanceof Chest) inventory = ((Chest) state).getInventory();
-                        if (state instanceof Furnace) inventory = ((Furnace) state).getInventory();
-                        if (state instanceof Hopper) inventory = ((Hopper) state).getInventory();
-                        if (inventory == null) continue;
-
-                        List<ItemStack> contents = Arrays.asList(inventory.getContents());
-                        List<ItemStack> contentsToRemove = new ArrayList<>();
-                        contents.forEach(itemStack -> {
-                            if (itemStack.getTypeId() == itemId && Byte.toUnsignedInt(block.getData()) == dataId) {
-                                sender.sendMessage("Chunk " + ChatColor.RED + chunk.getX() + ChatColor.RESET + "x" + ChatColor.RED + chunk.getZ() + ChatColor.RESET + " found match at X" + ChatColor.RED + block.getX() + ChatColor.RESET + " Y" + ChatColor.RED + block.getY() + ChatColor.RESET + " Z" + ChatColor.RED + block.getZ());
-                                found.incrementAndGet();
-
-                                if (delete) contentsToRemove.add(itemStack);
-                            }
-                        });
-                        contents.removeAll(contentsToRemove);
-                        if (contentsToRemove.size() > 0) inventory.setContents((ItemStack[]) contents.toArray());
-
-                        ++z;
-                    }
-                    ++y;
-                }
-                ++x;
-            }
-        }
     }
 
     private enum Operation {
         DELETE, FIND
     }
 
-    private enum SearchType {
-        BLOCK, ITEM
-    }
 }
