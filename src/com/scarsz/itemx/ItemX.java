@@ -122,6 +122,20 @@ public class ItemX extends JavaPlugin {
                 ++x;
             }
         }
+
+//        // search online player's inventories
+//        for (Player player : Bukkit.getOnlinePlayers()) {
+//            Inventory inventory = player.getInventory();
+//            List<ItemStack> contents = Arrays.asList(inventory.getContents());
+//            List<ItemStack> contentsToRemove = new ArrayList<>();
+//            contents.forEach(itemStack -> {
+//                if (itemStack.getTypeId() == itemId && Byte.toUnsignedInt(itemStack.getData().getData()) == dataId) {
+//                    contentsToRemove.add(itemStack);
+//                }
+//            });
+//            contents.removeAll(contentsToRemove);
+//            inventory.setContents((ItemStack[]) contents.toArray());
+//        }
     }
 
     private void itemSearchWork(List<Chunk> chunks, boolean force, AtomicInteger found, int searchLimit, CommandSender sender, String id) {
