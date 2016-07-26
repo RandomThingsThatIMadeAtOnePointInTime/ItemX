@@ -4,6 +4,6 @@ name: ItemX
 
 commands:
   itemx:
-    description: Search for a block or item id
-    usage: /itemx find/delete block/item blockid optional-dataid
+    description: Search for a block id
+    usage: /itemx find/delete blockid optional-dataid
     permission: itemx.search
