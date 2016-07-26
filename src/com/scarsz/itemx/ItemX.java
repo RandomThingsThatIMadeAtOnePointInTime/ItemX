@@ -87,12 +87,12 @@ public class ItemX extends JavaPlugin {
         masterLoop:
         for (Chunk chunk : chunks) {
             int x = 0;
-            while (x < 15) {
+            while (x < 16) {
                 int y = 0;
                 while (y < chunk.getWorld().getMaxHeight() - 1) {
                     int z = 0;
-                    while (z < 15) {
-                        if (!force && found.intValue() > searchLimit) break masterLoop;
+                    while (z < 16) {
+                        if (!force && found.intValue() > searchLimit && !delete) break masterLoop;
 
                         Block block = chunk.getBlock(x, y, z);
                         if (block.getTypeId() == itemId && Byte.toUnsignedInt(block.getData()) == dataId) {
