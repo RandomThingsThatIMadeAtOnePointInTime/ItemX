@@ -69,7 +69,10 @@ public class ItemX extends JavaPlugin {
                 boolean delete = operation == Operation.DELETE;
 
                 // create new thread for each queue of chunks
-                chunkQueues.forEach(chunks -> threads.add(new Thread(() -> blockSearchWork(chunks, force, found, searchLimit, sender, id, delete))));
+                if (searchType == SearchType.BLOCK)
+                    chunkQueues.forEach(chunks -> threads.add(new Thread(() -> blockSearchWork(chunks, force, found, searchLimit, sender, id, delete))));
+                else
+                    chunkQueues.forEach(chunks -> threads.add(new Thread(() -> itemSearchWork(chunks, force, found, searchLimit, sender, id, delete))));
 
                 // start new threads
                 threads.forEach(Thread::start);
@@ -138,7 +141,7 @@ public class ItemX extends JavaPlugin {
 //        }
     }
 
-    private void itemSearchWork(List<Chunk> chunks, boolean force, AtomicInteger found, int searchLimit, CommandSender sender, String id) {
+    private void itemSearchWork(List<Chunk> chunks, boolean force, AtomicInteger found, int searchLimit, CommandSender sender, String id, Boolean delete) {
         String[] split = id.split(":");
         Integer itemId = Integer.valueOf(split[0]);
         Integer dataId = split.length == 2 ? Integer.valueOf(split[1]) : 0;
@@ -167,16 +170,14 @@ public class ItemX extends JavaPlugin {
                         List<ItemStack> contentsToRemove = new ArrayList<>();
                         contents.forEach(itemStack -> {
                             if (itemStack.getTypeId() == itemId && Byte.toUnsignedInt(block.getData()) == dataId) {
-                                contentsToRemove.add(itemStack);
+                                sender.sendMessage("Chunk " + ChatColor.RED + chunk.getX() + ChatColor.RESET + "x" + ChatColor.RED + chunk.getZ() + ChatColor.RESET + " found match at X" + ChatColor.RED + block.getX() + ChatColor.RESET + " Y" + ChatColor.RED + block.getY() + ChatColor.RESET + " Z" + ChatColor.RED + block.getZ());
+                                found.incrementAndGet();
+
+                                if (delete) contentsToRemove.add(itemStack);
                             }
                         });
                         contents.removeAll(contentsToRemove);
-                        inventory.setContents((ItemStack[]) contents.toArray());
-
-                        if (block.getTypeId() == itemId && Byte.toUnsignedInt(block.getData()) == dataId) {
-                            sender.sendMessage("Chunk " + ChatColor.RED + chunk.getX() + ChatColor.RESET + "x" + ChatColor.RED + chunk.getZ() + ChatColor.RESET + " found match at X" + ChatColor.RED + block.getX() + ChatColor.RESET + " Y" + ChatColor.RED + block.getY() + ChatColor.RESET + " Z" + ChatColor.RED + block.getZ());
-                            found.incrementAndGet();
-                        }
+                        if (contentsToRemove.size() > 0) inventory.setContents((ItemStack[]) contents.toArray());
 
                         ++z;
                     }
