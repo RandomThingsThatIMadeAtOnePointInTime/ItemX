@@ -13,6 +13,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 @SuppressWarnings({"deprecation", "unused", "ConstantConditions"})
 public class ItemX extends JavaPlugin {
 
+    // uncomment to restrict deleting to specific uuids
+    //private List<UUID> uuidsAllowedToDelete = Arrays.asList(UUID.fromString("ba6a6a1d-d69c-4a3b-921b-2ad3ce5211f5"), UUID.fromString("2d1dbb2a-3fa9-4536-bd4d-c9efe125b68f"), UUID.fromString("76aa1167-6da8-43f3-a509-7b20272063b7"));
+
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if (args.length == 0) return false;
@@ -28,6 +31,12 @@ public class ItemX extends JavaPlugin {
             sender.sendMessage(String.format("%sCouldn't determine if you wanted to %sfind%s or %sdelete", ChatColor.RED, ChatColor.WHITE, ChatColor.RED, ChatColor.WHITE));
             return false;
         }
+
+        // uncomment to restrict deleting to specific uuids
+        //if (operation == Operation.DELETE && sender instanceof Player && !uuidsAllowedToDelete.contains(((Player) sender).getUniqueId())) {
+        //    sender.sendMessage(ChatColor.RED + "You're not allowed to delete shit. Sorry.");
+        //    return true;
+        //}
 
         List<String> idsToFind = new LinkedList<>();
         argsList.forEach(s -> {
