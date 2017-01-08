@@ -1,6 +1,8 @@
 /target/
-/.idea/
-/out/
 .settings
 .classpath
 .project
+/.idea/
+*.iml
+dependency-reduced-pom.xml
+Main.java
